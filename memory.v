@@ -7,7 +7,7 @@ input clk;
 output reg [7:0]firstempty;
 reg [31:0] memoryReg [0:191];
 integer k;
-integer i;
+reg [7:0]i;
 //reg [7:0]Raddr ;
 
 assign Data = (WR)?32'bzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz : OData ; //if read Data
@@ -24,15 +24,17 @@ end
 end
 
 always@(clk) 
+begin
 i=0;
 for(i=0;i<192;i=i+1)
 begin
  if(!memoryReg[i])
 begin
-	firstempty = i;
+	assign firstempty = i;
 $monitor("%d" ,i);
 end
-begin
+end
+
 
   if(WR)
   begin
