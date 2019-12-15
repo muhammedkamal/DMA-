@@ -14,7 +14,7 @@ assign Data = (WR)?32'bzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz : OData ; //if read Data
 
 initial 
 begin
-firstempty <=0;
+firstempty =0;
 k=0;
 for(k=0;k<191;k=k+1)
 begin 
@@ -26,12 +26,13 @@ end
 always@(clk) 
 begin
 i=0;
-for(i=0;i<192;i=i+1)
+for(i=0;i<=192;i=i+1)
 begin
- if(!memoryReg[i])
+//@(clk);
+if(memoryReg[i])
 begin
-	assign firstempty = i;
-$monitor("%d" ,i);
+firstempty = i+1;
+$monitor("%d" ,firstempty);
 end
 end
 
