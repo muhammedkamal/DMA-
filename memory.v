@@ -46,7 +46,7 @@ end
   begin
   OData <= memoryReg[addr];
   end
- 
+$writememb("memory.mem", memoryReg);
 end
 
 endmodule 
