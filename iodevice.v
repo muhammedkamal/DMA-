@@ -1,6 +1,9 @@
-module IODevice (CS,GPIO,Data,IOWrite,clk);
+module IODevice (Ack,GPIO,Data,IOWrite,clk,index);
 input IOWrite; 
-input CS;
+input Ack;
+input wire [8:0] index;
+wire CS = index[8];
+integer bufferind;
 output reg GPIO;
 //reg GP ;
 inout[31:0] Data ;
@@ -59,7 +62,24 @@ begin
 end*/
 end
 end 
+
+bufferind = index[7:0]-192;
 if (CS ==1)
+begin
+if(IOWrite == 1) //write
+begin 
+//to store in buffer
+//GP <= 1;
+ BufferReg[bufferind] <= Data ;
+end
+if(IOWrite == 0) //write
+begin 
+//to store in buffer
+//GP <= 1;
+ OData <= BufferReg[bufferind] ;
+end
+end
+if (Ack ==1)
 begin
 if(IOWrite == 1) //write
 begin 
@@ -107,12 +127,13 @@ end
 
 end
 end
+
 endmodule
 //test for intruptting and count 
 module newtest();
 
 wire [31:0] Data;
-reg CS;
+reg Ack;
 reg IOWrite;
 wire GPIO;
 reg inData ;
@@ -123,12 +144,12 @@ initial clk=1;
 always #5 clk=~clk;
 always @(posedge clk) 
 begin
-assign CS=1;
+assign Ack=1;
 assign IOWrite =0;
 
 $monitor("%d %d %d ",GPIO, IOWrite ,Data);
 end
-IODevice dev(CS,GPIO,Data,IOWrite,clk);
+IODevice dev(Ack,GPIO,Data,IOWrite,clk);
 
 
 
