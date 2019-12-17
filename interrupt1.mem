@@ -1,0 +1,5 @@
+// memory data file (do not edit the following line - required for mem load use)
+// instance=/newtest/dev/interrupt
+// format=bin addressradix=h dataradix=b version=1.0 wordsperline=1 noaddress
+1
+x
