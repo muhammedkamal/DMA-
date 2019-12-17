@@ -138,18 +138,19 @@ reg IOWrite;
 wire GPIO;
 reg inData ;
 reg clk;
+reg [8:0] index;
 
 initial clk=1;
 
 always #5 clk=~clk;
 always @(posedge clk) 
 begin
-assign Ack=1;
+assign Ack=0;
 assign IOWrite =0;
-
-$monitor("%d %d %d ",GPIO, IOWrite ,Data);
+assign index = 448;
+$monitor("%b %d %d ",index, IOWrite ,Data);
 end
-IODevice dev(Ack,GPIO,Data,IOWrite,clk);
+IODevice dev(Ack,GPIO,Data,IOWrite,clk,index);
 
 
 
