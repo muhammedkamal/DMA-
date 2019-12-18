@@ -1,20 +1,20 @@
-module memory(WR , Data , addr , clk,firstempty);
+module memory(WR , Data , addr , clk ,memfull);
 input [7:0] addr ;
 input WR;
 inout [31:0] Data ;
 reg [31:0] OData;
 input clk;
-output reg [7:0]firstempty;
+//reg [7:0]memoryReg[191];
 reg [31:0] memoryReg [0:191];
 integer k;
 reg [7:0]i;
+output reg memfull;
 //reg [7:0]Raddr ;
 
-assign Data = (WR)?32'bzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz : OData ; //if read Data
-
+assign Data = (WR)?32'bzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz : OData ; //if read Dataassign memoryReg[191]=memoryReg[191];
 initial 
 begin
-firstempty =0;
+memoryReg[191] =0;
 k=0;
 for(k=0;k<191;k=k+1)
 begin 
@@ -22,22 +22,42 @@ begin
 end
 
 end
-
-always@(clk) 
+/*always @(clk)
+begin 
+if(memoryReg[191]==32'd190)
+begin 
+memfull =1;
+end 
+else 
 begin
-i=0;
-for(i=0;i<=192;i=i+1)
+memfull=0;
+end
+end*/
+always @(clk)
+begin
+i=192;
+for (i=192;i>0;i=i-1)
 begin
 //@(clk);
-if(memoryReg[i])
+if(memoryReg[i]==32'h0000_0000)
 begin
-firstempty = i+1;
-$monitor("%d" ,firstempty);
+memoryReg[191]=i;
+$monitor("%d" ,memoryReg[191]);
 end
+/*else if (memoryReg[i]!=32'h0000_0000)
+begin
+i=i+1;
+end*/
 end
-
-
-  if(WR)
+if(memoryReg[191]==32'd190)
+begin 
+memfull <=1;
+end 
+else 
+begin
+memfull<=0;
+end
+  if(WR && addr!=191)
   begin
    memoryReg[addr] <= Data;
   end
@@ -56,7 +76,7 @@ reg WR ;
 wire [31:0] Data;
 reg [31:0]inData;
 reg [7:0]addr ;
-wire [7:0] firstempty;
+//wire [7:0] memoryReg[191];
 assign Data = (WR)? inData :32'bzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz;
 reg clock;
 
@@ -76,20 +96,20 @@ begin
 #6
 WR = 1'b1;
 inData =32'd8 ;
-addr = 7'd1;
+addr = 7'd0;
 
 $monitor($time,,,"%d %d %d %d ",WR, Data ,inData , addr, clock );
 
 #6
 WR = 1'b1;
 inData =32'd9 ;
-addr = 7'd2;
+addr = 7'd1;
 
 //$monitor("%h %h %h %h ",WR, Data ,inData , addr );
 #6
 WR = 1'b1;
 inData =32'd12 ;
-addr = 7'd3;
+addr = 7'd2;
 //$monitor("%h %h %h %h ",WR, Data ,inData , addr );
 #6
 WR = 1'b0;
@@ -99,7 +119,7 @@ addr = 7'b1;
 
 end
 
-memory mem(WR , Data , addr , clock,firstempty);
+memory mem(WR , Data , addr , clock,memfull);
 //clkgenertor c1(clock);
 
 
