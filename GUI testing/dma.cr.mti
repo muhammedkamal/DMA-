@@ -1,0 +1,28 @@
+C:/Users/Toka/Desktop/dma-gui-master/DMA_Project.v {1 {vlog -work work -stats=none C:/Users/Toka/Desktop/dma-gui-master/DMA_Project.v
+Model Technology ModelSim PE Student Edition vlog 10.4a Compiler 2015.03 Apr  7 2015
+-- Compiling module mux
+-- Compiling module addressmux
+-- Compiling module clkgenerator
+-- Compiling module DMA
+
+Top level modules:
+	mux
+	addressmux
+	clkgenerator
+	DMA
+
+} {} {}} C:/Users/Toka/Desktop/dma-gui-master/Processor.v {1 {vlog -work work -stats=none C:/Users/Toka/Desktop/dma-gui-master/Processor.v
+Model Technology ModelSim PE Student Edition vlog 10.4a Compiler 2015.03 Apr  7 2015
+-- Compiling module processor
+
+Top level modules:
+	processor
+
+} {} {}} C:/Users/Toka/Desktop/dma-gui-master/TestBench.v {1 {vlog -work work -stats=none C:/Users/Toka/Desktop/dma-gui-master/TestBench.v
+Model Technology ModelSim PE Student Edition vlog 10.4a Compiler 2015.03 Apr  7 2015
+-- Compiling module processor_tb
+
+Top level modules:
+	processor_tb
+
+} {} {}}
