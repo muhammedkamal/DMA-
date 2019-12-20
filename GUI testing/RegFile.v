@@ -23,18 +23,43 @@ inout [31:0] data;
 wire[31:0] fake_WriteData;
 reg [31:0] fake_read;
 integer file,j;
-always @ (posedge clk)
+// always @ (posedge clk)
+// begin
+
+// file = $fopen("C:\\Users\\Toka\\Desktop\\dma-gui-master\\Processor.txt");
+// $fmonitor(file, "Register[%d] = %d\n",j, Register[j]); 
+// for( j =0; j < 16; j = j + 1)
+// begin
+// #5
+// i=i;
+
+
+// end
+ 
+always @(*)
 begin
+file = $fopen("C:\\Users\\Toka\\Desktop\\dma-gui-master\\Processor.txt","w");
+	
+$fwrite(file,"R0    = %h\n",Register[0]);  
+$fwrite(file,"R1    = %h\n",Register[1]); 
+$fwrite(file,"R2    = %h\n",Register[2]); 
+$fwrite(file,"R3    = %h\n",Register[3]); 
+$fwrite(file,"R4	= %h\n",Register[4]); 
+$fwrite(file,"R5	= %h\n",Register[5]); 
+$fwrite(file,"R6	= %h\n",Register[6]); 
+$fwrite(file,"R7	= %h\n",Register[7]); 
+$fwrite(file,"R8	= %h\n",Register[8]); 
+$fwrite(file,"R9	= %h\n",Register[9]); 
+$fwrite(file,"R10   = %h\n",Register[10]); 
+$fwrite(file,"R11   = %h\n",Register[11]); 
+$fwrite(file,"R12   = %h\n",Register[12]); 
+$fwrite(file,"R13   = %h\n",Register[13]); 
+$fwrite(file,"R14	= %h\n",Register[14]); 
+$fwrite(file,"R15 	= %h\n",Register[15]); 
 
-file = $fopen("C:\\Users\\Toka\\Desktop\\dma-gui-master\\Processor.txt");
-$fmonitor(file, "Register[%d] = %d\n",j, Register[j]); 
-for( j =0; j < 16; j = j + 1)
-begin
-#5
-i=i;
-
-
+$fclose(file);$display("end");
 end
+ 
 end
 assign data = ((op !=2'b01)&&(op !=2'b10)&&(op !=2'b11))? fake_read : 32'bzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz;  //data is in output mode 
 assign fake_WriteData = ((op !=2'b01)&&(op !=2'b10)&&(op !=2'b11))? 32'bzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz : data; //data is in input mode
