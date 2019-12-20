@@ -35,7 +35,21 @@ begin
  BufferReg[k]=0;
 end
 end 
-
+	
+integer file,i;
+always @(*)
+begin
+file = $fopen("C:\\Users\\Toka\\Desktop\\dma-gui-master\\IO1_status.txt","w");
+	$fwrite(file,"StatusReg    = %h\n",StatusReg);
+	for(i = 0; i < 31; i = i + 1)
+	    begin
+		    
+		    $fwrite(file,"Buffer[i]    = %h\n",BufferReg[i]);  
+	    end
+	
+$fclose(file);$display("end");
+end
+	
 always@(clk)
 begin
 // checking interrupt by gui 
