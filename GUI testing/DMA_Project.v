@@ -73,9 +73,19 @@ assign clk = clock;
 assign type = instruction [23:22];
 assign count = instruction [5:0];
 
-
-
-
+integer file;
+always @(*)
+begin
+  file = $fopen("C:\\Users\\Toka\\Desktop\\dma-gui-master\\DMA.txt","w");
+  if (busybus)
+    $fwrite(file,"Leave me alone I've been granted the BUS\n"); 
+  else
+    $fwrite(file,"waiting for Mr. Processor يحن علينا to give me the BUS \n");
+  
+  $fclose(file);$display("end");
+end
+  
+  
 always @(grant or posedge clk)
 begin 
 if (grant == 1)
