@@ -123,7 +123,7 @@ def IO2_INT(b1):
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''' 
 def Import_Processor_Status():
      cwd = os.getcwd()
-     file = open('{}/Memory.txt'.format(cwd))
+     file = open('{}/Processor.txt'.format(cwd))
      w.processor.configure(state='normal')
      w.processor.delete('1.0', 'end')
      w.processor.insert('1.0', file.read())
@@ -139,7 +139,7 @@ def Import_DMA_Status():
     
 def Import_Memory_Status():
      cwd = os.getcwd()
-     file = open('{}/RAM.txt'.format(cwd))
+     file = open('{}/Memory.txt'.format(cwd))
      w.ram.configure(state='normal')
      w.ram.delete('1.0', 'end')
      w.ram.insert('1.0', file.read())
