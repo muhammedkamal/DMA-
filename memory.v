@@ -23,6 +23,7 @@ end
 
 end
  
+integer file, i;
 always @(WR)
  begin
 	#50 // delay between writing to the memory and then writing to the file
