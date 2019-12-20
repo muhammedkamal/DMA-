@@ -22,6 +22,22 @@ begin
 end
 
 end
+ 
+always @(WR)
+ begin
+	#50 // delay between writing to the memory and then writing to the file
+ file = $fopen("C:\\Users\\Toka\\Desktop\\dma-gui-master\\Memory.txt","w");
+
+for(i=0;i<192;i=i+4)
+	begin
+		$fwrite(file,"%04d   : ", i);
+  $fwrite(file,"%h %h %h %h",memoryReg[i],memoryReg[i+1],memoryReg[i+2],memoryReg[i+3]);
+		$fwrite(file,"\n");		
+	end
+	$fclose(file);
+
+end
+
 /*always @(clk)
 begin 
 if(memoryReg[191]==32'd190)
