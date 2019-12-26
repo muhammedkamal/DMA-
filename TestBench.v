@@ -4,10 +4,12 @@ wire [7:0]address;
 
 // Common signals
 
-reg IOIP1,IOIP2;
+//reg IOIP1,IOIP2;
 wire[7:0] firstempty;
 wire [7:0] next_source,next_destination,src,dest;
 reg [25:0]instruction,fake_instruction;
+wire [25:0] DMA_instruction;
+integer f,i ;
 clkgenerator c1(clock);
 
 //test signals
@@ -16,7 +18,7 @@ wire IOWrite1,IOWrite2,memwrite,IOAck1,IOAck2,GPIO2,GPIO1;
 reg [31:0] datamemory[0:8191];
 reg [25:0] instructionmemory[0:8191];
 reg [31:0]datain;
-integer r,p;
+integer r,p,oldp;
 reg [5:0] updated_count,offset;
 wire [8:0] memCS,IO1CS,IO2CS;
 
@@ -24,16 +26,24 @@ wire [8:0] memCS,IO1CS,IO2CS;
 
 wire P_IOWrite1,P_IOWrite2,P_memwrite,P_IOAck1,P_IOAck2,grant;
 wire [7:0]P_address;
-//wire memfull;
+
 //DMA signals
 
 wire D_IOWrite1,D_IOWrite2,D_memwrite,D_IOAck1,D_IOAck2,busybus;
 wire [7:0]D_address;
-
+/*always @ (fake_instruction)
+i=1;*/
 initial
 begin
-$readmemb("datafile.txt",datamemory);
-$readmemb("instructionfile.txt",instructionmemory);
+$readmemb("E:\Folder2/datafile.txt",datamemory);
+$readmemb("E:\FOLDER/instructionfile.txt",instructionmemory);
+f = 1;
+i=1;
+end
+always @(fake_instruction)
+begin
+offset=0;
+//i=1;
 end
 initial
 begin
@@ -52,25 +62,121 @@ offset=0;
 end
 
 always @(posedge clock)
-if ((p<8191) && updated_count == 0)
 begin
-offset =0;
+if (p<8191 )//updated_count
+//if ((p<8191))
+begin
+
+//offset =0;
+//fake_instruction=instructionmemory[p];
+if ((instructionmemory[p][25:24]==2'b00 || instructionmemory[p][25:24]==2'b01) && instructionmemory[p][23:22] != 2'b00 && instructionmemory[p][23:22] != 2'b11 && instructionmemory[p][5:0]>=1 && ( instructionmemory[p+i][25:24]==2'b10 || instructionmemory[p+i][25:24]==2'b11 ))
+begin
 fake_instruction=instructionmemory[p];
-#10
+#2
 instruction=instructionmemory[p];
-p = p + 1;
+/*if (instructionmemory[p+i][25:24]==2'b10 || instructionmemory[p+i][25:24]==2'b11)
+begin*/
+oldp = p;
+#8
+instruction=instructionmemory[oldp+i];
+i = i +1;
+//end
+end
+/*
+while ( instructionmemory[p+1+i][25:24]==2'b10 || instructionmemory[p+1+i][25:24]==2'b11 )
+begin
+#10
+instruction=instructionmemory[p+1+i];
+i = i +1;
+end
+*/
+else if (updated_count==0 )
+begin
+offset=0;
+oldp = p;
+i=0;
+fake_instruction = instructionmemory[oldp];
+#10
+
+instruction=instructionmemory[oldp];
+//#10
+//fake_instruction = instruction;
+oldp=oldp+1;
 if (instruction[25:24]==2'b00 || instruction[25:24]==2'b01)
 updated_count =instruction [5:0];
 end
-
-always@(negedge clock)
-begin
-if(updated_count !=0)
-updated_count = updated_count - 1;
 end
 
 
-always@(posedge clock)
+//p = p + 1;
+end
+//end
+//always@( posedge clock)//fake_instruction or
+//begin
+//offset =0;
+
+always @(negedge clock )
+begin
+if (f)
+begin
+if ((instruction[25:24] == 2'b00 ||instruction[25:24] == 2'b01) )//&& instruction[23:22] != 2'b00 && instruction[23:22] != 2'b11
+//#1
+updated_count =instruction [5:0];
+end
+
+if (updated_count>=1) // put &&busybus==0
+begin
+p=p;
+end
+else // if  (updated_count==0) 
+begin
+p=p+i+1;
+end
+/*if (updated_count!=0&&)
+begin
+DMA_instruction = instruction;
+//instruction =  instructionmemory[p+1];
+p = p + 1;
+end
+else //if (updated_count==0)
+p = p + 1;
+end*/
+//i=1;
+end
+
+/*always @(negedge clock)
+begin
+#1
+if(instructionmemory[p][25:24]!=2'b10 || instructionmemory[p][25:24]!=2'b11);
+#4
+instruction = instructionmemory[p-1];
+end*/
+always@(negedge clock )
+begin
+if (i==0)
+i=1;
+else if (i==1 && instruction [25:22]==4'b0100 && updated_count == 6'b000000)
+begin
+i=0;
+#1
+i=1;
+end
+end
+
+always@(negedge clock )//or negedge clock
+begin
+if(updated_count !=0)
+begin
+
+updated_count = updated_count - 1;
+f = 0;
+end
+else if (updated_count == 0)
+f = 1;
+end
+
+
+always@( negedge clock)//posedge clock or //fake_instruction or
 begin
 if (fake_instruction [5:0] == 0)
 offset = 1;
@@ -101,7 +207,7 @@ $monitor("instruction is %b,address is %d,memCS is %b,IO1CS is %b,IO2CS is %b,cl
 */
  
 //assign databus = ((instruction [25:24]!=2'b01)&&(instruction [25:24] !=2'b10)&&(instruction [25:24] !=2'b11))? 32'bzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz : datain;
-
+assign databus = 32'bzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz;
 /*initial 
 begin 
 
@@ -184,10 +290,10 @@ mux m3(memwrite,P_memwrite,D_memwrite,busybus);
 mux m4(IOAck1,P_IOAck1,D_IOAck1,busybus);
 mux m5(IOAck2,P_IOAck2,D_IOAck2,busybus);
 addressmux m6(address,P_address,D_address,busybus);
-processor p1(firstempty,P_address,grant,busybus,P_IOWrite1,P_IOWrite2,P_memwrite,P_IOAck1,P_IOAck2,instruction,clock,databus,IOIP1,IOIP2,next_source,next_destination);
-DMA D1(firstempty,D_address,grant,D_IOWrite1,D_IOWrite2,D_memwrite,D_IOAck1,D_IOAck2,instruction,clock,IOIP1,IOIP2,busybus,next_source,next_destination); //,databus
+processor p1(updated_count,DMA_instruction,firstempty,P_address,grant,busybus,P_IOWrite1,P_IOWrite2,P_memwrite,P_IOAck1,P_IOAck2,instruction,clock,databus,GPIO1,GPIO2,next_source,next_destination);
+DMA D1(firstempty,D_address,grant,D_IOWrite1,D_IOWrite2,D_memwrite,D_IOAck1,D_IOAck2,DMA_instruction,clock,GPIO1,GPIO2,busybus,next_source,next_destination); //,databus
 IODevice2 dev2(IOAck2,GPIO2,databus,IOWrite2,clock,IO2CS);
 IODevice1 dev1(IOAck1,GPIO1,databus,IOWrite1,clock,IO1CS);
-//memory mem1(memWR,databus,memCS,clock,memfull,firstempty);//memfull,
+memory mem1(memwrite,databus,memCS,clock,firstempty);//memfull,
 endmodule
 

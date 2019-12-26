@@ -1,4 +1,4 @@
-module mux(signalout,signal1,signal2,sel);
+module mux(signalout,signal1,signal2,sel);  
 output reg signalout; 
 input wire signal1,signal2,sel;
 always @(signal1 or signal2 or sel)
@@ -53,8 +53,8 @@ endmodule
 
 
 
-module DMA(firstempty,D_address,grant,D_IOWrite1,D_IOWrite2,D_memwrite,D_IOAck1,D_IOAck2,instruction,clock,IOIP1,IOIP2,busybus,next_source,next_destination); //,databus
-input [25:0] instruction ;
+module DMA(firstempty,D_address,grant,D_IOWrite1,D_IOWrite2,D_memwrite,D_IOAck1,D_IOAck2,DMA_instruction,clock,IOIP1,IOIP2,busybus,next_source,next_destination); //,databus
+input [25:0] DMA_instruction ;
 
 wire[1:0] op,type; 
 wire [5:0] count;
@@ -66,17 +66,17 @@ wire[31:0] data;
 output reg D_IOWrite1,D_IOWrite2,D_memwrite,D_IOAck1,D_IOAck2,busybus; 
 input [7:0] next_source,next_destination,firstempty;
 reg [7:0] source,destination,IPaddress;
-
-assign op = instruction [25:24];
+reg [5:0]up_count;
+assign op = DMA_instruction [25:24];
 //assign gnt = grant;
 assign clk = clock;
-assign type = instruction [23:22];
-assign count = instruction [5:0];
+assign type = DMA_instruction [23:22];
+assign count = DMA_instruction [5:0];
 
 
 
 
-always @(grant or posedge clk)
+always @(grant )//or posedge clk
 begin 
 if (grant == 1)
 busybus=1;
@@ -84,24 +84,31 @@ else
 busybus=0; 
 end
 
-assign databus = ((instruction [25:24] !=2'b01)&&(instruction [25:24] !=2'b10)&&(instruction [25:24]!=2'b11))? 100000: 32'bzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz;  //bigdata is in output mode 
-assign data = ((instruction [25:24]!=2'b01)&&(instruction [25:24] !=2'b10)&&(instruction [25:24] !=2'b11))? 32'bzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz:databus; //bigdata is in input mode
-
-
+//assign databus = ((instruction [25:24] !=2'b01)&&(instruction [25:24] !=2'b10)&&(instruction [25:24]!=2'b11))? 100000: 32'bzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz;  //bigdata is in output mode 
+//assign data = ((instruction [25:24]!=2'b01)&&(instruction [25:24] !=2'b10)&&(instruction [25:24] !=2'b11))? 32'bzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz:databus; //bigdata is in input mode
+/*always@(DMA_instruction)
+begin
+up_count=count;
+end*/
 always@( posedge clk)
 begin
 source = next_source;
 destination = next_destination;
 IPaddress = firstempty;
+/*if(up_count !=0)
+up_count = up_count - 1;
+if(up_count ==0)
+busybus=0;*/
 end
 
 
 initial
-$monitor("instruction is %b,source is %b,destination is %b,D_address is %b,busybus is %b,clk is %b",instruction,source,destination,D_address,busybus,clk);
+$monitor("instruction is %b,source is %b,destination is %b,D_address is %b,busybus is %b,clk is %b",DMA_instruction,source,destination,D_address,busybus,clk);
 
 
-always @ (grant or posedge clk)  
+always @ (grant or posedge clk)  // put grant or 
 begin
+
 if (grant==1)
 begin
 if (op == 2'b01 && type ==2'b01 ) // put && busybus==0
@@ -150,7 +157,7 @@ D_address = source;
 #5
 D_address = destination;
 #4
-D_address = 8'bx; 
+D_address = 8'bz; 
 end
 else if (source <= 255 && source >= 224) // from I/O2 to memory 
 begin
@@ -171,22 +178,21 @@ end
 
 else if (( (op == 2'b01 && type == 2'b10)) ) // from memory to memory  // put && (busybus == 0) //(op == 2'b00 && type == 2'b10) ||
 begin    
-D_IOWrite1 = 1'b0;
+D_IOWrite1 = 1'b1;
 D_IOWrite2 = 1'b0;
 D_memwrite = 0;   // read from any place in memory at posedge
 busybus=1;
 D_IOAck1 =0;
 D_IOAck2 =0;
 D_address = source;
-#5
-D_address = destination;
+#2
+D_address = 223;
+#2
 D_IOWrite1 = 1'b0;
-D_IOWrite2 = 1'b0;
 D_memwrite = 1;  // write in any place in memory at negedge of same cycle 
-busybus=1; 
-D_IOAck1 =0;
-D_IOAck2 =0;
-#4
+#3
+D_address = destination;
+#2
 D_address = 8'bx; 
 end
 
@@ -251,11 +257,13 @@ D_IOAck1 =0;
 D_IOAck2 =0;
 D_address=IPaddress;
 #5
-D_address = 8'bx; 
+D_address = 8'bz; 
 end
 
 end
 end
+else if (grant == 0)
+D_address = 8'bz;
 end
 
 endmodule
