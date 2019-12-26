@@ -22,7 +22,31 @@ integer i;
 inout [31:0] data; 
 wire[31:0] fake_WriteData;
 reg [31:0] fake_read;
- 
+integer file, j;
+always @(*)
+begin
+file = $fopen("C:\\Users\\fares\\Desktop\\year work\\DMA proj\\GUI\\Processor.txt","w");
+
+$fwrite(file,"R0	= %h\n",Register[0]);  
+$fwrite(file,"R1	= %h\n",Register[1]); 
+$fwrite(file,"R2	= %h\n",Register[2]); 
+$fwrite(file,"R3	= %h\n",Register[3]); 
+$fwrite(file,"R4	= %h\n",Register[4]); 
+$fwrite(file,"R5	= %h\n",Register[5]); 
+$fwrite(file,"R6	= %h\n",Register[6]); 
+$fwrite(file,"R7	= %h\n",Register[7]); 
+$fwrite(file,"R8	= %h\n",Register[8]); 
+$fwrite(file,"R9	= %h\n",Register[9]); 
+$fwrite(file,"R10	= %h\n",Register[10]); 
+$fwrite(file,"R11	= %h\n",Register[11]); 
+$fwrite(file,"R12	= %h\n",Register[12]); 
+$fwrite(file,"R13	= %h\n",Register[13]); 
+$fwrite(file,"R14	= %h\n",Register[14]); 
+$fwrite(file,"R15	= %h\n",Register[15]); 
+
+$fclose(file);$display("end");
+end
+
 
 
 assign data = ((op !=2'b01)&&(op !=2'b10)&&(op !=2'b11))? fake_read : 32'bzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz;  //data is in output mode 
@@ -49,7 +73,6 @@ WriteData = ReadData1 - ReadData2;
  else if ((op==2'b01&&type==2'b00) || (op==2'b01&&type==2'b11) ) // lw from memory , lw from IO device 
 #1
 WriteData =fake_WriteData; 
-
 
 else
 WriteData = 32'bz;

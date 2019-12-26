@@ -6,7 +6,7 @@ wire [31:0] ReadData1, ReadData2;
 wire[1:0] op,type; 
 wire [5:0] count;
 wire RegWrite; 
-input clock,IOIP1,IOIP2,busybus;  
+input clock,IOIP1,IOIP2,busybus; 
 wire clk;
 inout [31:0] databus;
 wire[31:0] data; 
@@ -16,7 +16,7 @@ input [7:0] next_source,next_destination,firstempty;
 output reg [7:0]P_address;
 reg [7:0] source,destination,IPaddress;
 output reg [25:0] DMA_instruction;
-input [5:0] updated_count;  
+input [5:0] updated_count;
 
 assign Readreg1 = instruction[23:20];
 assign Readreg2 = instruction[19:16];
@@ -73,7 +73,7 @@ begin
 if (busybus==0)
 DMA_instruction = 26'bz;
 end
-always @ ( posedge clk or instruction or busybus) // generating I/Owrite1 , I/Owrite2 , memwrite for all instructions 
+always @ ( posedge clk or instruction) // generating I/Owrite1 , I/Owrite2 , memwrite for all instructions 
 /*for processor, instructions will have higher priority than interrupts , because it will assign interrupts to DMA in case of conflicts
 if there is an instruction(lw,sw) at posedge and there is interrupt(s),the device should wait becuase it can't take Bus now
 if there is an instruction(add,sub) at posedge and there is interrupt(s),the processor gives grant to DMA while it executes instruction

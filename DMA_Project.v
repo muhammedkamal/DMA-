@@ -1,4 +1,4 @@
-module mux(signalout,signal1,signal2,sel);  
+module mux(signalout,signal1,signal2,sel); 
 output reg signalout; 
 input wire signal1,signal2,sel;
 always @(signal1 or signal2 or sel)
@@ -73,6 +73,19 @@ assign clk = clock;
 assign type = DMA_instruction [23:22];
 assign count = DMA_instruction [5:0];
 
+integer file;
+
+always @(*)
+
+begin
+  file = $fopen("C:\\Users\\fares\\Desktop\\year work\\DMA proj\\GUI\\DMA.txt");
+  if (busybus)
+    $fwrite(file,"BUS with DMA\n"); 
+  else
+    $fwrite(file,"BUS with processor\n");
+
+  $fclose(file);$display("end");
+end
 
 
 
@@ -102,13 +115,12 @@ busybus=0;*/
 end
 
 
-initial
-$monitor("instruction is %b,source is %b,destination is %b,D_address is %b,busybus is %b,clk is %b",DMA_instruction,source,destination,D_address,busybus,clk);
+// initial
+// $monitor("instruction is %b,source is %b,destination is %b,D_address is %b,busybus is %b,clk is %b",DMA_instruction,source,destination,D_address,busybus,clk);
 
 
 always @ (grant or posedge clk)  // put grant or 
 begin
-
 if (grant==1)
 begin
 if (op == 2'b01 && type ==2'b01 ) // put && busybus==0
@@ -262,8 +274,6 @@ end
 
 end
 end
-else if (grant == 0)
-D_address = 8'bz;
 end
 
 endmodule

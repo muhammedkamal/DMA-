@@ -39,7 +39,7 @@ begin
 StatusReg = 0;
 count = 0;
 i=0;
-//f = $fopen("D:\Folder2/databusfile.txt","w");
+//f = $fopen("E:\Folder2/databusfile.txt","w");
 
 for(k=0;k<32;k=k+1)
 begin 
@@ -47,12 +47,26 @@ begin
 end
 end 
 
+integer file,counter;
+always @(*)
+begin
+file = $fopen("C:\\Users\\fares\\Desktop\\year work\\DMA proj\\GUI\\IO2_status.txt","w");
+	// $fwrite(file,"StatusReg    = %h\n",StatusReg);
+	for(counter = 0; counter < 31; counter = counter + 1)
+	    begin
+
+		    $fwrite(file,"Buffer[%3d]	= %h\n", counter,BufferReg2[counter]);  
+	    end
+
+$fclose(file);$display("end");
+end
+
 always@(clk)
 begin
 
 // checking interrupt2 by gui 
 //count=0;
-$readmemb("D:\dma/interrupt2.mem", interrupt2);
+$readmemb("C:\\Users\\fares\\Desktop\\year work\\DMA proj\\GUI\\interrupt2.txt", interrupt2);
 if (interrupt2[0]==0)
 begin
 assign GPIO2 =0;
@@ -66,7 +80,7 @@ begin
  BufferReg2[k]=0;
 
 end
-$readmemh("D:\dma/buffermemory2.mem", BufferReg2);
+$readmemh("C:\\Users\\fares\\Desktop\\year work\\DMA proj\\GUI\\buffermemory2.mem", BufferReg2);
 //$writememh("D:\dma/buffermemory2.mem", BufferReg2);
 //count=0;
 //$monitor("%b" ,GPIO2);
@@ -87,7 +101,7 @@ end
 end*/
 end 
 end
-always @(Ack2 or clk or IO2CS or IOWrite2)
+always @(clk or IO2CS)
 begin
 //assign Odatabus = 32'bzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz;
  // since index represents net address so we must delete '-224'
@@ -106,14 +120,12 @@ begin
 //GP <= 1;
  Odatabus <= BufferReg2[IO2_addr] ;
 end
-
 else if(IOWrite2 == 1'bx)
 begin
 Odatabus <= 32'bzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz;
 end
 end
-else if (Ack2 ==0)
-Odatabus = 32'bzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz;
+
 else if (Ack2 ==1)
 begin
 /*if(IOWrite2 == 1) //write
@@ -127,7 +139,7 @@ end
 */
 i=0;
 //read buffermemory 
-$readmemh("D:\dma/buffermemory2.mem", BufferReg2);
+$readmemh("C:\\Users\\fares\\Desktop\\year work\\DMA proj\\GUI\\buffermemory2.mem", BufferReg2);
 //check number of words at memory 
 for(i=0;i<32;i=i+1)
 begin
@@ -145,21 +157,19 @@ startcount=count+1;
 // $fwrite(f,"%b\n",BufferReg2[count-1]);
 for(i=0;i<startcount;i=i+1)
 begin
-@(negedge clk);
- if (Ack2 ==0)
-Odatabus = 32'bzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz;
-else if(count>0)
+@(posedge clk);
+if(count>0)
 begin
  Odatabus = BufferReg2[i] ;
  BufferReg2[i] = 0 ;
-$writememh("D:\dma/buffermemory2.mem", BufferReg2);
+$writememh("C:\\Users\\fares\\Desktop\\year work\\DMA proj\\GUI\\buffermemory2.mem", BufferReg2);
  count = count-1;
 end
-else if (count==32'h00000000)
+if (count==32'h00000000)
 begin
 assign GPIO2 = 0;
 interrupt2[0]=0;
-$writememb("D:\dma/interrupt2.mem", interrupt2);
+$writememb("C:\\Users\\fares\\Desktop\\year work\\DMA proj\\GUI\\interrupt2.mem", interrupt2);
 end
 end
 
@@ -186,7 +196,7 @@ end
 
 endmodule
 //test for intruptting and count 
-module newtest2();
+/* module newtest2();
 
 //wire [31:0] databus;
 reg Ack2;
@@ -208,7 +218,7 @@ always #5 clk=~clk;
 
 initial
 begin
-$readmemb("D:\dma/databusfile.txt",databusmemory);
+$readmemb("E:\dma/databusfile.txt",databusmemory);
 end
 initial
 begin
@@ -227,97 +237,97 @@ assign IOWrite2 =0;
 assign index = 448;
 $monitor("%b %d %d ",index, IOWrite2 ,databus);
 end*/
-IODevice2 dev(Ack2,GPIO2,databusbus,IOWrite2,clk,index);
-initial
-begin
-assign Ack2=0;
-assign IOWrite2 =0;
-assign index = 285;//29
-$monitor("%b %d %d ",index, IOWrite2 ,databusbus);
-#30
-assign Ack2=0;
-assign IOWrite2 =0;
-assign index = 266;//10
-$monitor("%b %d %d ",index, IOWrite2 ,databusbus);
-#30
-assign Ack2=0;
-assign IOWrite2 =0;
-assign index = 263;//7
+// IODevice2 dev(Ack2,GPIO2,databusbus,IOWrite2,clk,index);
+// initial
+// begin
+// assign Ack2=0;
+// assign IOWrite2 =0;
+// assign index = 285;//29
+//$monitor("%b %d %d ",index, IOWrite2 ,databusbus);
+// #30
+// assign Ack2=0;
+// assign IOWrite2 =0;
+// assign index = 266;//10
+//$monitor("%b %d %d ",index, IOWrite2 ,databusbus);
+// #30
+// assign Ack2=0;
+// assign IOWrite2 =0;
+// assign index = 263;//7
 //assign indata =5;
-$monitor("%b %d %d ",index, IOWrite2 ,databusbus);
-#30
-assign Ack2=0;
-assign IOWrite2 =1;
-assign index =263 ;//buff7
+//$monitor("%b %d %d ",index, IOWrite2 ,databusbus);
+// #30
+// assign Ack2=0;
+// assign IOWrite2 =1;
+// assign index =263 ;//buff7
 //assign indata =5;
-$monitor("%b %d %d ",index, IOWrite2 ,databusbus);
-#30
-assign Ack2=0;
-assign IOWrite2 =1'b0;
-assign index = 0;
+//$monitor("%b %d %d ",index, IOWrite2 ,databusbus);
+// #30
+// assign Ack2=0;
+// assign IOWrite2 =1'b0;
+// assign index = 0;
 //assign indata =5;
-$monitor("%b %d %d ",index, IOWrite2 ,databusbus);
-#30
-assign Ack2=0;
-assign IOWrite2 =1;
-assign index = 275;//19
+//$monitor("%b %d %d ",index, IOWrite2 ,databusbus);
+// #30
+// assign Ack2=0;
+// assign IOWrite2 =1;
+// assign index = 275;//19
 //assign indata =5;
-$monitor("%b %d %d ",index, IOWrite2 ,databusbus);
-#30
-assign Ack2=0;
-assign IOWrite2 =0;
-assign index = 285;
-//assign indata =5;
-$monitor("%b %d %d ",index, IOWrite2 ,databusbus);
-end
+//$monitor("%b %d %d ",index, IOWrite2 ,databusbus);
+// #30
+// assign Ack2=0;
+// assign IOWrite2 =0;
+// assign index = 285;
+// assign indata =5;
+//$monitor("%b %d %d ",index, IOWrite2 ,databusbus);
+// end
 
 
 
 
-endmodule 
-module testbench();
+// endmodule 
+// module testbench();
 
-wire [31:0] databus;
-reg IOWrite2;
-wire GPIO2;
-reg indata ;
+// wire [31:0] databus;
+// reg IOWrite2;
+// wire GPIO2;
+// reg indata ;
 
-assign databus = (!IOWrite2)? indata :32'bzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz;
+// assign databus = (!IOWrite2)? indata :32'bzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz;
 
-initial 
-begin
-#6
-IOWrite2 = 1'b1;
-indata =32'b1 ;
-$monitor("%d %d %d  ",GPIO2, IOWrite2 ,databus );
-#6
-IOWrite2 = 1'b1;
-indata = 32'b0 ;
-$monitor("%d %d %d ",GPIO2, IOWrite2 ,databus);
-#6
-IOWrite2 = 1'b1;
-indata = 32'b1;
-$monitor("%d %d %d  ",GPIO2, IOWrite2 ,databus );
+// initial 
+// begin
+// #6
+// IOWrite2 = 1'b1;
+// indata =32'b1 ;
+//$monitor("%d %d %d  ",GPIO2, IOWrite2 ,databus );
+// #6
+// IOWrite2 = 1'b1;
+// indata = 32'b0 ;
+// $monitor("%d %d %d ",GPIO2, IOWrite2 ,databus);
+// #6
+// IOWrite2 = 1'b1;
+// indata = 32'b1;
+//$monitor("%d %d %d  ",GPIO2, IOWrite2 ,databus );
 
-#6
-IOWrite2 = 1'b1;
-indata = 32'b0;
-$monitor("%d %d %d  ",GPIO2, IOWrite2 ,databus );
+// #6
+// IOWrite2 = 1'b1;
+// indata = 32'b0;
+//$monitor("%d %d %d  ",GPIO2, IOWrite2 ,databus );
 
-#6
-IOWrite2 = 1'b1;
-indata = 32'b1;
-$monitor("%d %d %d  ",GPIO2, IOWrite2 ,databus );
+// #6
+// IOWrite2 = 1'b1;
+// indata = 32'b1;
+//$monitor("%d %d %d  ",GPIO2, IOWrite2 ,databus );
 
 
 
-#6
-IOWrite2 = 1'b0;
-$monitor("%d %d %d  ",GPIO2, IOWrite2 ,databus );
-#6
-IOWrite2 = 1'b1;
-indata = 32'b1;
-$monitor("%d %d %d  ",GPIO2, IOWrite2 ,databus );
+// #6
+// IOWrite2 = 1'b0;
+//$monitor("%d %d %d  ",GPIO2, IOWrite2 ,databus );
+// #6
+// IOWrite2 = 1'b1;
+// indata = 32'b1;
+//$monitor("%d %d %d  ",GPIO2, IOWrite2 ,databus );
 
 
 /*
@@ -328,13 +338,13 @@ $monitor("%d %d %d  ",GPIO2, IOWrite2 ,databus );
 IOWrite2 = 1'b0;
 $monitor("%d %d %d  ",GPIO2, IOWrite2 ,databus );
 */
-end
+// end
 
-//IODevice2 device(GPIO2,databus,IOWrite2,clock );
-clkgenertor c1(clock);
+// IODevice2 device(GPIO2,databus,IOWrite2,clock );
+// clkgenertor c1(clock);
 
 
-endmodule  
+// endmodule  
 
 module clkgenertor(clock);
 output reg clock;
@@ -347,24 +357,25 @@ clock = ~clock;
 end 
 endmodule 
 
-module interrupt2_test(n,GPIO2, databus ,indata , IOWrite2);
-input IOWrite2; 
-output reg GPIO2;
-output reg [31:0] databus;
+// module interrupt2_test(n,GPIO2, databus ,indata , IOWrite2);
+// input IOWrite2; 
+// output reg GPIO2;
+// output reg [31:0] databus;
 
-input [31:0] indata ;
-input n ;
-reg [31:0] BufferReg2 [0:30];
-reg interrupt2 [0:1];
-always 
-begin 
-#6
-$readmemb("D:\dma/interrupt2.mem", interrupt2);
-if (interrupt2[0])
-begin 
-assign GPIO2 = 1;
-$monitor("%b" ,GPIO2);
-$readmemh("D:\dma/memory1.mem", BufferReg2);
-end 
-end 
-endmodule 
+// input [31:0] indata ;
+// input n ;
+// reg [31:0] BufferReg2 [0:30];
+// reg interrupt2 [0:1];
+// always 
+// begin 
+// #6
+// $readmemb("E:\dma/interrupt2.mem", interrupt2);
+// if (interrupt2[0])
+// begin 
+// assign GPIO2 = 1;
+// $monitor("%b" ,GPIO2);
+// $readmemh("E:\dma/memory1.mem", BufferReg2);
+// end 
+// end 
+// endmodule 
+ 

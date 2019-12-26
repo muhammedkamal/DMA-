@@ -34,6 +34,25 @@ begin
 end
 
 end
+
+integer file, count;
+
+always @(memWR)
+ begin
+//	#50 // delay between writing to the memory and then writing to the file
+ file = $fopen("C:\\Users\\fares\\Desktop\\year work\\DMA proj\\GUI\\memory.txt","w");
+
+for(count=0;count<192;count=count+4)
+	begin
+		$fwrite(file,"%04d: ", count);
+  $fwrite(file,"%h %h %h %h",memoryReg[count],memoryReg[count+1],memoryReg[count+2],memoryReg[count+3]);
+		$fwrite(file,"\n");		
+	end
+	$fclose(file);
+
+end
+
+
 /*always @(clk)
 begin 
 if(memoryReg[191]==32'd190)
@@ -72,7 +91,7 @@ begin
   begin
   Odatabus = memoryReg[addr];
   end
-$writememb("D:\dma/memory.mem", memoryReg); 
+//$writememb("C:\\Users\\fares\\Desktop\\year work\\DMA proj\\GUI\\memory.mem", memoryReg); 
 end
 
 else
@@ -82,7 +101,7 @@ end
 
 endmodule 
 
-module testmemory();
+/* module testmemory();
 reg memWR ;
 reg MemCS;
 wire [31:0] databus;
@@ -157,3 +176,4 @@ memory mem(memWR,databus,index,clk,firstempty);
 
 
 endmodule 
+ */

@@ -35,8 +35,8 @@ wire [7:0]D_address;
 i=1;*/
 initial
 begin
-$readmemb("E:\Folder2/datafile.txt",datamemory);
-$readmemb("E:\FOLDER/instructionfile.txt",instructionmemory);
+//$readmemb("E:\Folder2/datafile.txt",datamemory);
+$readmemb("C:\\Users\\fares\\Desktop\\year work\\DMA proj\\GUI\\instructionfile.txt",instructionmemory);
 f = 1;
 i=1;
 end
